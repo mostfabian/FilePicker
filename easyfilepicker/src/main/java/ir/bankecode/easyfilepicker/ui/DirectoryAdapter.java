@@ -17,6 +17,7 @@ import ir.bankecode.easyfilepicker.R;
 import ir.bankecode.easyfilepicker.utils.FileTypeUtils;
 
 public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.DirectoryViewHolder> {
+
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
     }
@@ -56,18 +57,15 @@ public class DirectoryAdapter extends RecyclerView.Adapter<DirectoryAdapter.Dire
     }
 
     @Override
-    public DirectoryViewHolder onCreateViewHolder(ViewGroup parent,
-                                                  int viewType) {
+    public DirectoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_file, parent, false);
-
         return new DirectoryViewHolder(view, mOnItemClickListener);
     }
 
     @Override
     public void onBindViewHolder(DirectoryViewHolder holder, int position) {
         File currentFile = mFiles.get(position);
-
         FileTypeUtils.FileType fileType = FileTypeUtils.getFileType(currentFile);
         if (fileType == FileTypeUtils.FileType.IMAGE) {
             Glide.with(mContext).load(currentFile).into(holder.mFileImage);

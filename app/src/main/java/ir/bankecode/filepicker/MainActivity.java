@@ -5,6 +5,7 @@ import ir.bankecode.easyfilepicker.EasyFilePicker;
 import ir.bankecode.easyfilepicker.ui.FilePickerActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -16,5 +17,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        materialFilePicker();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 65535 && resultCode == RESULT_OK) {
+            String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
+            Toast.makeText(this, filePath, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void materialFilePicker() {
+        new EasyFilePicker()
+                .withActivity(this)
+                .withRequestCode(65535)
+                .withFilter(Pattern.compile(".*\\.jpg"))
+                .withTitle("انتخاب فایل")
+                .withCloseMenu(true)
+                //.withCloseMenu(true, R.color.colorAccent)
+                //.withToolbarTitleColor(R.color.colorAccent)
+                //.withToolbarSubtitleColor(R.color.colorAccent)
+                //.withToolbarBackgroundColor(R.color.colorPrimaryDark)
+                //.withToolbar(R.layout.easy_file_picker_toolbar, R.id.toolbar)
+                .start();
     }
 }

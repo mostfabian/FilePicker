@@ -2,13 +2,18 @@ package ir.bankecode.easyfilepicker.ui;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -18,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import ir.bankecode.easyfilepicker.R;
@@ -26,6 +34,14 @@ import ir.bankecode.easyfilepicker.filter.PatternFilter;
 import ir.bankecode.easyfilepicker.utils.FileUtils;
 
 public class FilePickerActivity extends AppCompatActivity implements DirectoryFragment.FileClickListener {
+
+    public static final String ARG_TOOLBAR_LAYOUT_RES = "arg_toolbar_layout_res";
+    public static final String ARG_TOOLBAR_ID_RES = "arg_toolbar_id_res";
+    public static final String ARG_TOOLBAR_TITLE_COLOR = "arg_toolbar_title_color";
+    public static final String ARG_TOOLBAR_SUBTITLE_COLOR = "arg_toolbar_subtitle_color";
+    public static final String ARG_TOOLBAR_BACKGROUND_COLOR = "arg_toolbar_background_color";
+    public static final String ARG_TOOLBAR_ICON_COLOR = "arg_toolbar_icon_color";
+
     public static final String ARG_START_PATH = "arg_start_path";
     public static final String ARG_CURRENT_PATH = "arg_current_path";
 
@@ -43,6 +59,12 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     private String mStartPath = Environment.getExternalStorageDirectory().getAbsolutePath();
     private String mCurrentPath = mStartPath;
     private CharSequence mTitle;
+    private @LayoutRes int mToolbarLayoutRes;
+    private @IdRes int mToolbarIdRes;
+    private @ColorRes int mToolbarTitleColor;
+    private @ColorRes int mToolbarSubtitleColor;
+    private @ColorRes int mToolbarBackgroundColor;
+    private @ColorRes int mToolbarIconColor;
 
     private Boolean mCloseable = true;
 
@@ -51,20 +73,17 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file_picker);
-
         initArguments(savedInstanceState);
+        setContentView(R.layout.activity_file_picker);
         initViews();
         initToolbar();
         initBackStackState();
         initFragment();
     }
 
-    @SuppressWarnings("unchecked")
     private void initArguments(Bundle savedInstanceState) {
         if (getIntent().hasExtra(ARG_FILTER)) {
             Serializable filter = getIntent().getSerializableExtra(ARG_FILTER);
-
             if (filter instanceof Pattern) {
                 ArrayList<FileFilter> filters = new ArrayList<>();
                 filters.add(new PatternFilter((Pattern) filter, false));
@@ -73,7 +92,6 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
                 mFilter = (CompositeFilter) filter;
             }
         }
-
         if (savedInstanceState != null) {
             mStartPath = savedInstanceState.getString(STATE_START_PATH);
             mCurrentPath = savedInstanceState.getString(STATE_CURRENT_PATH);
@@ -83,34 +101,47 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
                 mStartPath = getIntent().getStringExtra(ARG_START_PATH);
                 mCurrentPath = mStartPath;
             }
-
             if (getIntent().hasExtra(ARG_CURRENT_PATH)) {
                 String currentPath = getIntent().getStringExtra(ARG_CURRENT_PATH);
-
                 if (currentPath.startsWith(mStartPath)) {
                     mCurrentPath = currentPath;
                 }
             }
         }
-
         if (getIntent().hasExtra(ARG_TITLE)) {
             mTitle = getIntent().getCharSequenceExtra(ARG_TITLE);
         }
-
         if (getIntent().hasExtra(ARG_CLOSEABLE)) {
             mCloseable = getIntent().getBooleanExtra(ARG_CLOSEABLE, true);
+        }
+        if (getIntent().hasExtra(ARG_TOOLBAR_TITLE_COLOR)) {
+            mToolbarTitleColor = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_TITLE_COLOR, 0);
+        }
+        if (getIntent().hasExtra(ARG_TOOLBAR_SUBTITLE_COLOR)) {
+            mToolbarSubtitleColor = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_SUBTITLE_COLOR, 0);
+        }
+        if (getIntent().hasExtra(ARG_TOOLBAR_BACKGROUND_COLOR)) {
+            mToolbarBackgroundColor = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_BACKGROUND_COLOR, 0);
+        }
+        if (getIntent().hasExtra(ARG_TOOLBAR_ICON_COLOR)) {
+            mToolbarIconColor = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_ICON_COLOR, 0);
         }
     }
 
     private void initToolbar() {
         setSupportActionBar(mToolbar);
-
-        // Show back button
+        if (mToolbarTitleColor != 0) {
+            mToolbar.setTitleTextColor(getResources().getColor(mToolbarTitleColor));
+        }
+        if (mToolbarSubtitleColor != 0) {
+            mToolbar.setSubtitleTextColor(getResources().getColor(mToolbarSubtitleColor));
+        }
+        if (mToolbarBackgroundColor != 0) {
+            mToolbar.setBackgroundColor(getResources().getColor(mToolbarBackgroundColor));
+        }
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-
-        // Truncate start of path
         try {
             Field f;
             if (TextUtils.isEmpty(mTitle)) {
@@ -118,13 +149,10 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
             } else {
                 f = mToolbar.getClass().getDeclaredField("mSubtitleTextView");
             }
-
             f.setAccessible(true);
             TextView textView = (TextView) f.get(mToolbar);
             textView.setEllipsize(TextUtils.TruncateAt.START);
-        } catch (Exception ignored) {
-        }
-
+        } catch (Exception ignored) {}
         if (!TextUtils.isEmpty(mTitle)) {
             setTitle(mTitle);
         }
@@ -132,13 +160,24 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     }
 
     private void initViews() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (getIntent().hasExtra(FilePickerActivity.ARG_TOOLBAR_LAYOUT_RES) && getIntent().hasExtra(FilePickerActivity.ARG_TOOLBAR_ID_RES)) {
+            @LayoutRes int toolbarLayoutRes = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_LAYOUT_RES, 0);
+            View toolbarLayout = LayoutInflater.from(this).inflate(toolbarLayoutRes, null, false);
+            @IdRes int toolbarIdRes = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_ID_RES, 0);
+            mToolbar = toolbarLayout.findViewById(toolbarIdRes);
+            ViewFlipper viewFlipper = findViewById(R.id.viewFlipperToolbar);
+            viewFlipper.addView(mToolbar);
+            viewFlipper.startFlipping();
+            viewFlipper.setVisibility(View.VISIBLE);
+        } else {
+            mToolbar = (Toolbar) findViewById(R.id.toolbar);
+            mToolbar.setVisibility(View.VISIBLE);
+        }
     }
 
     private void initFragment() {
         getFragmentManager().beginTransaction()
-                .replace(R.id.container, DirectoryFragment.getInstance(
-                        mCurrentPath, mFilter))
+                .replace(R.id.container, DirectoryFragment.getInstance(mCurrentPath, mFilter))
                 .addToBackStack(null)
                 .commit();
     }
@@ -146,14 +185,11 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     private void initBackStackState() {
         String pathToAdd = mCurrentPath;
         ArrayList<String> separatedPaths = new ArrayList<>();
-
         while (!pathToAdd.equals(mStartPath)) {
             pathToAdd = FileUtils.cutLastSegmentOfPath(pathToAdd);
             separatedPaths.add(pathToAdd);
         }
-
         Collections.reverse(separatedPaths);
-
         for (String path : separatedPaths) {
             addFragmentToBackStack(path);
         }
@@ -172,8 +208,7 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
     private void addFragmentToBackStack(String path) {
         getFragmentManager().beginTransaction()
-                .replace(R.id.container, DirectoryFragment.getInstance(
-                        path, mFilter))
+                .replace(R.id.container, DirectoryFragment.getInstance(path, mFilter))
                 .addToBackStack(null)
                 .commit();
     }
@@ -181,7 +216,13 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        menu.findItem(R.id.action_close).setVisible(mCloseable);
+        MenuItem menuItemClose = menu.findItem(R.id.action_close);
+        if (mCloseable && mToolbarIconColor != 0) {
+            Drawable drawable = menuItemClose.getIcon();
+            drawable.setColorFilter(getResources().getColor(mToolbarIconColor), PorterDuff.Mode.MULTIPLY);
+            menuItemClose.setIcon(drawable);
+        }
+        menuItemClose.setVisible(mCloseable);
         return true;
     }
 
@@ -198,7 +239,6 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     @Override
     public void onBackPressed() {
         FragmentManager fm = getFragmentManager();
-
         if (!mCurrentPath.equals(mStartPath)) {
             fm.popBackStack();
             mCurrentPath = FileUtils.cutLastSegmentOfPath(mCurrentPath);
@@ -229,8 +269,6 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     private void handleFileClicked(final File clickedFile) {
         if (clickedFile.isDirectory()) {
             mCurrentPath = clickedFile.getPath();
-            // If the user wanna go to the emulated directory, he will be taken to the
-            // corresponding user emulated folder.
             if (mCurrentPath.equals("/storage/emulated"))
                 mCurrentPath = Environment.getExternalStorageDirectory().getAbsolutePath();
             addFragmentToBackStack(mCurrentPath);

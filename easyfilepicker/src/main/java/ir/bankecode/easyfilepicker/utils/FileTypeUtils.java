@@ -11,6 +11,7 @@ import java.util.Map;
 import ir.bankecode.easyfilepicker.R;
 
 public class FileTypeUtils {
+
     public enum FileType {
         DIRECTORY(R.drawable.ic_folder_48dp, R.string.type_directory),
         DOCUMENT(R.drawable.ic_document_box, R.string.type_document),
@@ -63,12 +64,10 @@ public class FileTypeUtils {
         if (file.isDirectory()) {
             return FileType.DIRECTORY;
         }
-
         FileType fileType = fileTypeExtensions.get(getExtension(file.getName()));
         if (fileType != null) {
             return fileType;
         }
-
         return FileType.DOCUMENT;
     }
 

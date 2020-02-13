@@ -6,4 +6,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ToolbarTheme">
+        <item name="android:textColorPrimary">@color/colorAccent</item>
+        <item name="android:textColorSecondary">@color/colorAccent</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>
