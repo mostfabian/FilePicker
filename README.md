@@ -1,6 +1,6 @@
 # Easy File Picker
 
-Material Simple Library for pick files. Easy to use, Compatable with androidX, Customizable and Flexible.
+Material simple library for pick files. Easy to use, compatable with androidX, customizable and flexible.
 
 ### Start Using
 
