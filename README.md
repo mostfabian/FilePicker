@@ -1,6 +1,10 @@
 # Easy File Picker
 
-### build.gradle (Project)
+Material simple library for pick files. Easy to use, compatable with androidX, customizable and flexible.
+
+## Start Using
+
+#### Build.gradle (Project)
 ```
 allprojects {
     repositories {
@@ -10,25 +14,30 @@ allprojects {
 }
 ```
 
-### build.gradle (Module app)
+#### Build.gradle (Module app)
 ```
 dependencies {
     ...
-    implementation 'com.github.mostfabian:FilePicker:1.1.0'
+    implementation 'com.github.mostfabian:FilePicker:1.2.0'
 }
 ```
 
-### Start picking file
+#### Android Manifests
+```
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+```
+
+#### Picking File
 ```
 new EasyFilePicker()
     .withActivity(this)
     .withRequestCode(65535)
-    .withFilter(Pattern.compile(".*\\.jpg"))
+    .addMimeType(FilePickerActivity.MimeType.MIME_TYPE_IMAGE)
     .withTitle("Title")
     .start();
 ```
 
-### Handle result
+#### Handle Result
 ```
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -40,34 +49,60 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
-### Customization
+## Extra Methods
 
-#### add close icon
+#### Add Mime Types
+```
+.addMimeType(FilePickerActivity.MimeType.MIME_TYPE_VIDEO)
+```
+Use can use `MIME_TYPE_IMAGE`, `MIME_TYPE_VIDEO` and `MIME_TYPE_AUDIO` for now.
+
+#### Add Extentions
+```
+.addExtensions("pdf", "zip", "txt")
+```
+
+#### Ignore Extentions
+```
+.ignoreExtensions("zip", "txt")
+```
+This method check extensions that added before.
+
+#### Add Filter
+If either of the above methods does not meet your needs, you can use this method:
+```
+.withFilter(Pattern.compile(".*\\.(jpg|zip)"))
+```
+If use this, methods `addMimeType`, `addExtensions` and `ignoreExtensions` will not work anymore.
+
+## Customization
+
+#### Add Close Menu
 ```
 .withCloseMenu(true)
 ```
 
-#### add close icon with special color
+#### Add Close Menu With Special Color
 ```
 .withCloseMenu(true, R.color.colorAccent)
 ```
 
-#### change toolbar title color
+#### Change Toolbar Title Color
 ```
 .withToolbarTitleColor(R.color.colorAccent)
 ```
 
-#### To change toolbar subtitle color
+#### Change Toolbar Subtitle Color
 ```
 .withToolbarSubtitleColor(R.color.colorAccent)
 ```
 
-#### change toolbar background color
+#### Change Toolbar Background Color
 ```
 .withToolbarBackgroundColor(R.color.colorPrimary)
 ```
 
-#### change toolbar back arrow color
+#### Change Toolbar Back Arrow Color
 Create style like this:
 ```
 <style name="ToolbarTheme">
