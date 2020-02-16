@@ -2,7 +2,7 @@
 
 Material simple library for pick files. Easy to use, compatable with androidX, customizable and flexible.
 
-### Start Using
+## Start Using
 
 #### Build.gradle (Project)
 ```
@@ -49,7 +49,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
-### Extra Methods
+## Extra Methods
 
 #### Add Mime Types
 ```
@@ -75,7 +75,7 @@ If either of the above methods does not meet your needs, you can use this method
 ```
 If use this, methods `addMimeType`, `addExtensions` and `ignoreExtensions` will not work anymore.
 
-### Customization
+## Customization
 
 #### Add Close Menu
 ```
