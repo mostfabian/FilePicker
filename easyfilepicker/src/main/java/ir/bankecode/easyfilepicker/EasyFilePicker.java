@@ -6,6 +6,7 @@ import android.content.Intent;
 
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import androidx.annotation.ColorRes;
@@ -32,6 +33,7 @@ public class EasyFilePicker {
     private Class<? extends FilePickerActivity> mFilePickerClass = FilePickerActivity.class;
 
     private Integer mRequestCode;
+    private List<String> mFileExtensions;
     private Pattern mFileFilter;
     private Boolean mDirectoriesFilter = false;
     private String mRootPath;
@@ -68,6 +70,59 @@ public class EasyFilePicker {
 
     public EasyFilePicker withRequestCode(int requestCode) {
         mRequestCode = requestCode;
+        return this;
+    }
+
+    public EasyFilePicker addExtensions(String... ext) {
+        if (ext == null) return this;
+        if (mFileExtensions == null) {
+            mFileExtensions = new ArrayList<>();
+        }
+        for (String s : ext) {
+            if (!s.isEmpty()) {
+                mFileExtensions.add(s);
+            }
+        }
+        return this;
+    }
+
+    public EasyFilePicker addMimeType(FilePickerActivity.MimeType mimeType) {
+        if (mimeType == null) return this;
+        if (mFileExtensions == null) {
+            mFileExtensions = new ArrayList<>();
+        }
+        switch (mimeType) {
+            case MIME_TYPE_IMAGE:
+                mFileExtensions.add("jpg");
+                mFileExtensions.add("jpeg");
+                mFileExtensions.add("png");
+                mFileExtensions.add("bmp");
+                break;
+            case MIME_TYPE_VIDEO:
+                mFileExtensions.add("mp4");
+                mFileExtensions.add("mkv");
+                mFileExtensions.add("wmv");
+                break;
+            case MIME_TYPE_AUDIO:
+                mFileExtensions.add("mp3");
+                mFileExtensions.add("wav");
+                mFileExtensions.add("wma");
+                mFileExtensions.add("m4a");
+                mFileExtensions.add("amr");
+                mFileExtensions.add("ogg");
+                break;
+        }
+        return this;
+    }
+
+    public EasyFilePicker ignoreExtension(String... ext) {
+        if (ext == null) return this;
+        if (mFileExtensions == null) return this;
+        for (String s : ext) {
+            if (!s.isEmpty()) {
+                mFileExtensions.remove(s);
+            }
+        }
         return this;
     }
 
@@ -153,6 +208,14 @@ public class EasyFilePicker {
         ArrayList<FileFilter> filters = new ArrayList<>();
         if (!mShowHidden) {
             filters.add(new HiddenFilter());
+        }
+        if (mFileExtensions != null) {
+            String pattern = ".*\\.".concat("(");
+            for (String fileExtension : mFileExtensions) {
+                pattern = pattern.concat(fileExtension).concat("|");
+            }
+            pattern = pattern.substring(0, pattern.length()-1).concat(")");
+            filters.add(new PatternFilter(Pattern.compile(pattern), false));
         }
         if (mFileFilter != null) {
             filters.add(new PatternFilter(mFileFilter, mDirectoriesFilter));

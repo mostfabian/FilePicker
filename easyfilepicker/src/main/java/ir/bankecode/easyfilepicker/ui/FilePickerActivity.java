@@ -55,6 +55,12 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     public static final String RESULT_FILE_PATH = "result_file_path";
     private static final int HANDLE_CLICK_DELAY = 150;
 
+    public enum MimeType {
+        MIME_TYPE_IMAGE,
+        MIME_TYPE_VIDEO,
+        MIME_TYPE_AUDIO,
+    }
+
     private Toolbar mToolbar;
     private String mStartPath = Environment.getExternalStorageDirectory().getAbsolutePath();
     private String mCurrentPath = mStartPath;

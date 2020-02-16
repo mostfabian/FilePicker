@@ -34,7 +34,11 @@ public class MainActivity extends AppCompatActivity {
         new EasyFilePicker()
                 .withActivity(this)
                 .withRequestCode(65535)
-                .withFilter(Pattern.compile(".*\\.jpg"))
+                .withFilter(Pattern.compile(".*\\.(jpg|zip)"))
+                .addExtensions("pdf", "zip", "txt")
+                /*.addMimeType(FilePickerActivity.MimeType.MIME_TYPE_IMAGE)*/
+                .addMimeType(FilePickerActivity.MimeType.MIME_TYPE_VIDEO)
+                .ignoreExtension("zip", "txt")
                 .withTitle("انتخاب فایل")
                 .withCloseMenu(true)
                 //.withCloseMenu(true, R.color.colorAccent)
