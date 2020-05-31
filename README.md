@@ -75,6 +75,12 @@ If either of the above methods does not meet your needs, you can use this method
 ```
 If use this, methods `addMimeType`, `addExtensions` and `ignoreExtensions` will not work anymore.
 
+#### Hide Empty Directories
+```
+.withHideEmptyDirs(true)
+```
+Using this method, makes library slower.
+
 ## Customization
 
 #### Add Close Menu
