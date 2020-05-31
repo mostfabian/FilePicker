@@ -29,6 +29,7 @@ public class EasyFilePicker {
     private @ColorRes int mToolbarSubtitleColor;
     private @ColorRes int mToolbarBackgroundColor;
     private @ColorRes int mToolbarIconColor;
+    private String mLanguageCode;
 
     private Class<? extends FilePickerActivity> mFilePickerClass = FilePickerActivity.class;
 
@@ -40,6 +41,7 @@ public class EasyFilePicker {
     private String mCurrentPath;
     private Boolean mShowHidden = false;
     private Boolean mCloseable = true;
+    private Boolean mHideEmptyDirs = false;
     private CharSequence mTitle;
 
     public EasyFilePicker() {}
@@ -70,6 +72,11 @@ public class EasyFilePicker {
 
     public EasyFilePicker withRequestCode(int requestCode) {
         mRequestCode = requestCode;
+        return this;
+    }
+
+    public EasyFilePicker withLanguageCode(String languageCode) {
+        mLanguageCode = languageCode;
         return this;
     }
 
@@ -115,7 +122,7 @@ public class EasyFilePicker {
         return this;
     }
 
-    public EasyFilePicker ignoreExtension(String... ext) {
+    public EasyFilePicker ignoreExtensions(String... ext) {
         if (ext == null) return this;
         if (mFileExtensions == null) return this;
         for (String s : ext) {
@@ -148,6 +155,11 @@ public class EasyFilePicker {
 
     public EasyFilePicker withHiddenFiles(boolean show) {
         mShowHidden = show;
+        return this;
+    }
+
+    public EasyFilePicker withHideEmptyDirs(boolean hideEmptyDirs) {
+        mHideEmptyDirs = hideEmptyDirs;
         return this;
     }
 
@@ -228,6 +240,10 @@ public class EasyFilePicker {
         Intent intent = new Intent(getActivity(), mFilePickerClass);
         intent.putExtra(FilePickerActivity.ARG_FILTER, filter);
         intent.putExtra(FilePickerActivity.ARG_CLOSEABLE, mCloseable);
+        intent.putExtra(FilePickerActivity.ARG_HIDE_EMPTY_DIRS, mHideEmptyDirs);
+        if (mLanguageCode != null) {
+            intent.putExtra(FilePickerActivity.ARG_LANGUAGE_CODE, mLanguageCode);
+        }
         if (mRootPath != null) {
             intent.putExtra(FilePickerActivity.ARG_START_PATH, mRootPath);
         }

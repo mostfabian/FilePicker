@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_close">لغو</string>
+    <string name="empty_directory_hint">پوشه خالی</string>
+    <string name="type_archive">بایگانی</string>
+    <string name="type_certificate">Certificate</string>
+    <string name="type_directory">پوشه</string>
+    <string name="type_document">مستند</string>
+    <string name="type_drawing">Drawing</string>
+    <string name="type_excel">Excel</string>
+    <string name="type_image">تصویر</string>
+    <string name="type_music">موسیقی</string>
+    <string name="type_video">ویدیو</string>
+    <string name="type_pdf">PDF</string>
+    <string name="type_power_point">Presentation</string>
+    <string name="type_word">Document</string>
+    <string name="type_apk">APK</string>
+</resources>

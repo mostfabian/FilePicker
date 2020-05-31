@@ -7,6 +7,7 @@ import ir.bankecode.easyfilepicker.ui.FilePickerActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import java.util.regex.Pattern;
@@ -17,7 +18,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        materialFilePicker();
     }
 
     @Override
@@ -27,20 +27,23 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 65535 && resultCode == RESULT_OK) {
             String filePath = data.getStringExtra(FilePickerActivity.RESULT_FILE_PATH);
             Toast.makeText(this, filePath, Toast.LENGTH_SHORT).show();
+            setTitle(getResources().getString(R.string.app_name));
         }
     }
 
-    public void materialFilePicker() {
+    public void pick(View view) {
         new EasyFilePicker()
                 .withActivity(this)
+                .withLanguageCode("fa")
                 .withRequestCode(65535)
-                .withFilter(Pattern.compile(".*\\.(jpg|zip)"))
-                .addExtensions("pdf", "zip", "txt")
-                /*.addMimeType(FilePickerActivity.MimeType.MIME_TYPE_IMAGE)*/
-                .addMimeType(FilePickerActivity.MimeType.MIME_TYPE_VIDEO)
-                .ignoreExtension("zip", "txt")
+                //.addExtensions("pdf", "zip", "txt")
+                .addMimeType(FilePickerActivity.MimeType.MIME_TYPE_IMAGE)
+                //.addMimeType(FilePickerActivity.MimeType.MIME_TYPE_VIDEO)
+                //.ignoreExtensions("zip", "txt")
+                //.withFilter(Pattern.compile(".*\\.(jpg|zip)"))
                 .withTitle("انتخاب فایل")
-                .withCloseMenu(true)
+                .withCloseMenu(false)
+                .withHideEmptyDirs(false)
                 //.withCloseMenu(true, R.color.colorAccent)
                 //.withToolbarTitleColor(R.color.colorAccent)
                 //.withToolbarSubtitleColor(R.color.colorAccent)

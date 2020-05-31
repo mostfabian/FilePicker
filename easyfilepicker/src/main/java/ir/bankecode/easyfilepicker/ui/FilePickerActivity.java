@@ -2,12 +2,15 @@ package ir.bankecode.easyfilepicker.ui;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +24,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import androidx.annotation.ColorRes;
@@ -47,7 +51,9 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
     public static final String ARG_FILTER = "arg_filter";
     public static final String ARG_CLOSEABLE = "arg_closeable";
+    public static final String ARG_HIDE_EMPTY_DIRS = "arg_hide_empty_dirs";
     public static final String ARG_TITLE = "arg_title";
+    public static final String ARG_LANGUAGE_CODE = "arg_language_code";
 
     public static final String STATE_START_PATH = "state_start_path";
     private static final String STATE_CURRENT_PATH = "state_current_path";
@@ -71,8 +77,11 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
     private @ColorRes int mToolbarSubtitleColor;
     private @ColorRes int mToolbarBackgroundColor;
     private @ColorRes int mToolbarIconColor;
+    private Locale mStartLocale;
+    private String mLanguageCode;
 
     private Boolean mCloseable = true;
+    private Boolean mHideEmptyDirs = false;
 
     private CompositeFilter mFilter;
 
@@ -85,6 +94,7 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
         initToolbar();
         initBackStackState();
         initFragment();
+        updateLocale();
     }
 
     private void initArguments(Bundle savedInstanceState) {
@@ -117,8 +127,14 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
         if (getIntent().hasExtra(ARG_TITLE)) {
             mTitle = getIntent().getCharSequenceExtra(ARG_TITLE);
         }
+        if (getIntent().hasExtra(ARG_LANGUAGE_CODE)) {
+            mLanguageCode = getIntent().getStringExtra(ARG_LANGUAGE_CODE);
+        }
         if (getIntent().hasExtra(ARG_CLOSEABLE)) {
             mCloseable = getIntent().getBooleanExtra(ARG_CLOSEABLE, true);
+        }
+        if (getIntent().hasExtra(ARG_HIDE_EMPTY_DIRS)) {
+            mHideEmptyDirs = getIntent().getBooleanExtra(ARG_HIDE_EMPTY_DIRS, true);
         }
         if (getIntent().hasExtra(ARG_TOOLBAR_TITLE_COLOR)) {
             mToolbarTitleColor = getIntent().getIntExtra(FilePickerActivity.ARG_TOOLBAR_TITLE_COLOR, 0);
@@ -183,7 +199,7 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
     private void initFragment() {
         getFragmentManager().beginTransaction()
-                .replace(R.id.container, DirectoryFragment.getInstance(mCurrentPath, mFilter))
+                .replace(R.id.container, DirectoryFragment.getInstance(mCurrentPath, mFilter, mHideEmptyDirs))
                 .addToBackStack(null)
                 .commit();
     }
@@ -203,7 +219,9 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
 
     private void updateTitle() {
         if (getSupportActionBar() != null) {
-            String titlePath = mCurrentPath.isEmpty() ? "/" : mCurrentPath;
+            String titlePath = mCurrentPath.isEmpty() ? "Storage" : mCurrentPath
+                    .replace(Environment.getExternalStorageDirectory().getAbsolutePath(), "Storage")
+                    .replace("/storage/emulated", "Storage");
             if (TextUtils.isEmpty(mTitle)) {
                 getSupportActionBar().setTitle(titlePath);
             } else {
@@ -212,9 +230,28 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
         }
     }
 
+    private void updateLocale() {
+        if (mLanguageCode != null) {
+            mStartLocale = getResources().getConfiguration().locale;
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            Configuration conf = getResources().getConfiguration();
+            conf.setLocale(new Locale(mLanguageCode.toLowerCase()));
+            getResources().updateConfiguration(conf, dm);
+        }
+    }
+
+    private void resetLocale() {
+        if (mStartLocale != null) {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            Configuration conf = getResources().getConfiguration();
+            conf.setLocale(mStartLocale);
+            getResources().updateConfiguration(conf, dm);
+        }
+    }
+
     private void addFragmentToBackStack(String path) {
         getFragmentManager().beginTransaction()
-                .replace(R.id.container, DirectoryFragment.getInstance(path, mFilter))
+                .replace(R.id.container, DirectoryFragment.getInstance(path, mFilter, mHideEmptyDirs))
                 .addToBackStack(null)
                 .commit();
     }
@@ -260,6 +297,12 @@ public class FilePickerActivity extends AppCompatActivity implements DirectoryFr
         super.onSaveInstanceState(outState);
         outState.putString(STATE_CURRENT_PATH, mCurrentPath);
         outState.putString(STATE_START_PATH, mStartPath);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        resetLocale();
     }
 
     @Override

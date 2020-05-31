@@ -10,6 +10,7 @@
     <string name="type_excel">EXCEL</string>
     <string name="type_image">照片</string>
     <string name="type_music">音乐</string>
+    <string name="type_video">Video</string>
     <string name="type_pdf">PDF</string>
     <string name="type_power_point">PPT</string>
     <string name="type_word">WORD</string>

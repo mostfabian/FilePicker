@@ -24,9 +24,11 @@ public class DirectoryFragment extends Fragment {
 
     private static final String ARG_FILE_PATH = "arg_file_path";
     private static final String ARG_FILTER = "arg_filter";
+    private static final String ARG_HIDE_EMPTY_DIRS = "arg_hide_empty_dirs";
 
     private View mEmptyView;
     private String mPath;
+    private boolean mHideEmptyDirs;
 
     private CompositeFilter mFilter;
 
@@ -47,12 +49,13 @@ public class DirectoryFragment extends Fragment {
     }
 
     public static DirectoryFragment getInstance(
-            String path, CompositeFilter filter) {
+            String path, CompositeFilter filter, boolean hideEmptyDirs) {
         DirectoryFragment instance = new DirectoryFragment();
 
         Bundle args = new Bundle();
         args.putString(ARG_FILE_PATH, path);
         args.putSerializable(ARG_FILTER, filter);
+        args.putBoolean(ARG_HIDE_EMPTY_DIRS, hideEmptyDirs);
         instance.setArguments(args);
 
         return instance;
@@ -76,7 +79,7 @@ public class DirectoryFragment extends Fragment {
 
     private void initFilesList() {
         mDirectoryAdapter = new DirectoryAdapter(getActivity(),
-                FileUtils.getFileListByDirPath(mPath, mFilter));
+                FileUtils.getFileListByDirPath(mPath, mFilter, mHideEmptyDirs));
 
         mDirectoryAdapter.setOnItemClickListener(new DirectoryAdapter.OnItemClickListener() {
             @Override
@@ -95,6 +98,7 @@ public class DirectoryFragment extends Fragment {
     private void initArgs() {
         if (getArguments().getString(ARG_FILE_PATH) != null) {
             mPath = getArguments().getString(ARG_FILE_PATH);
+            mHideEmptyDirs = getArguments().getBoolean(ARG_HIDE_EMPTY_DIRS);
         }
         mFilter = (CompositeFilter) getArguments().getSerializable(ARG_FILTER);
     }
